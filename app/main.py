@@ -6,7 +6,11 @@ from sqlalchemy.orm import Session
 
 from app.db import Base, engine, get_db
 from app.models.item import Item as ItemModel
+from app.models.activity import ActivityLog
+from app.models.hint import Hint
+from app.models.user_preferences import UserPreferences
 from app.schemas.item import Item as ItemSchema
+from app.routers import activity, hints, preferences, events
 
 
 def seed_database(db: Session):
@@ -47,6 +51,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Register routers
+app.include_router(activity.router)
+app.include_router(hints.router)
+app.include_router(preferences.router)
+app.include_router(events.router)
 
 
 @app.get("/")
