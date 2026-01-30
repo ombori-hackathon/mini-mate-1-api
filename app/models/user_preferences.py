@@ -14,5 +14,10 @@ class UserPreferences(Base):
     enable_break_reminders = Column(Boolean, default=True)
     enable_app_suggestions = Column(Boolean, default=True)
     enable_workflow_tips = Column(Boolean, default=True)
+    # Time-based hint settings
+    break_interval_minutes = Column(Integer, default=30)  # Break every X minutes
+    session_duration_minutes = Column(Integer, default=60)  # Total session length
+    same_app_threshold_minutes = Column(Integer, default=10)  # Hint after X mins in same app
+    enable_same_app_hints = Column(Boolean, default=True)  # Toggle same-app hints
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

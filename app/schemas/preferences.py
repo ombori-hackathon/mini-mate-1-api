@@ -10,6 +10,11 @@ class UserPreferencesUpdate(BaseModel):
     enable_break_reminders: bool | None = None
     enable_app_suggestions: bool | None = None
     enable_workflow_tips: bool | None = None
+    # Time-based hint settings
+    break_interval_minutes: int | None = None
+    session_duration_minutes: int | None = None
+    same_app_threshold_minutes: int | None = None
+    enable_same_app_hints: bool | None = None
 
 
 class UserPreferencesResponse(BaseModel):
@@ -22,6 +27,11 @@ class UserPreferencesResponse(BaseModel):
     enable_break_reminders: bool
     enable_app_suggestions: bool
     enable_workflow_tips: bool
+    # Time-based hint settings
+    break_interval_minutes: int
+    session_duration_minutes: int
+    same_app_threshold_minutes: int
+    enable_same_app_hints: bool
     created_at: datetime
     updated_at: datetime
 
