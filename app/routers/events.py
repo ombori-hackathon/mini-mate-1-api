@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, BackgroundTasks
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from datetime import datetime
@@ -18,33 +18,29 @@ class EventReminderRequest(BaseModel):
 @router.post("/reminder")
 async def send_event_reminder(
     request: EventReminderRequest,
-    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db)
 ):
     """
     Receive an event reminder and generate an AI-powered hint.
     Shows immediately at the scheduled time.
     """
+    # Generate AI-powered reminder
+    hint_result = await ai_service.generate_event_reminder(
+        event_title=request.event_title
+    )
 
-    async def create_event_hint():
-        # Generate AI-powered reminder
-        hint_result = await ai_service.generate_event_reminder(
-            event_title=request.event_title
+    if hint_result.should_generate:
+        hint = Hint(
+            device_id=request.device_id,
+            category=HintCategory.EVENT_REMINDER,
+            priority=HintPriority.HIGH,
+            title=hint_result.title,
+            message=hint_result.message,
+            status=HintStatus.PENDING,
         )
+        db.add(hint)
+        db.commit()
+        print(f"📅 Created event reminder: {hint_result.title}")
+        return {"status": "reminder_created", "event": request.event_title, "hint_id": hint.id}
 
-        if hint_result.should_generate:
-            hint = Hint(
-                device_id=request.device_id,
-                category=HintCategory.EVENT_REMINDER,
-                priority=HintPriority.HIGH,
-                title=hint_result.title,
-                message=hint_result.message,
-                status=HintStatus.PENDING,
-            )
-            db.add(hint)
-            db.commit()
-            print(f"Created event reminder: {hint_result.title}")
-
-    background_tasks.add_task(create_event_hint)
-
-    return {"status": "reminder_created", "event": request.event_title}
+    return {"status": "no_reminder_created", "event": request.event_title}
